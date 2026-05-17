@@ -509,6 +509,35 @@
         fileBlob = null;
     }
 </script>
+<script>
+// 1. Right Click bondho
+document.addEventListener('contextmenu', event => event.preventDefault());
 
+// 2. Advanced Security & Alt-Menu Block
+function blockSecurity(e) {
+    // Alt key block (System Menu block korar chesta)
+    if (e.altKey || e.keyCode == 18) {
+        e.preventDefault();
+        return false;
+    }
+
+    // F12, Ctrl+U, Ctrl+Shift+I, Ctrl+S, Ctrl+C block
+    if (e.keyCode == 123 || 
+        (e.ctrlKey && e.keyCode == 85) || 
+        (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || 
+        (e.ctrlKey && e.keyCode == 83) || 
+        (e.ctrlKey && e.keyCode == 67)) {
+        e.preventDefault();
+        return false;
+    }
+}
+
+// Keydown ebong Keyup — duto event-ei block kora hochhe jate menu na ashe
+document.addEventListener('keydown', blockSecurity);
+document.addEventListener('keyup', blockSecurity);
+
+// 3. Text Selection block
+document.onselectstart = function() { return false; };
+</script>
 </body>
 </html>
