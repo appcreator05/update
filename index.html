@@ -334,6 +334,102 @@
         .downloading-mode .play-btn { display: none; }
         .downloading-mode .cancel-btn { display: block; }
         .downloading-mode .app-logo { border-radius: 50%; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #ffffff;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 650px;
+            background: #121826;
+            border: 1px solid #1f2a44;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #00ffaa;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .intro-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            text-align: center;
+            margin-bottom: 25px;
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #38bdf8;
+            margin-bottom: 15px;
+            border-left: 4px solid #38bdf8;
+            padding-left: 10px;
+        }
+
+        .features-list, .steps-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .features-list li, .steps-list li {
+            background: #1e293b;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #e2e8f0;
+        }
+
+        .steps-list li {
+            border-left: 4px solid #00ffaa;
+        }
+
+        .important-note {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #fca5a5;
+        }
+
+        .important-note strong {
+            color: #ef4444;
+            display: block;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -409,27 +505,36 @@
                 <span class="arrow-icon">➔</span>
             </div>
             <p class="app-description">
-             🎬 VDOSky - Watch Movies & Earn Cash! 💰
+             <div class="container">
+    <div class="header">
+        <h1>🎬 VDOSky - Watch Movies & Earn Cash! 💰</h1>
+        <p>✨ Watch Your Favorite Content and Fill Your Wallet! ✨</p>
+    </div>
 
-✨ Watch Your Favorite Content and Fill Your Wallet! ✨
+    <div class="intro-text">
+        Do you love watching movies 🎥 and short videos 📱? Why just watch for free when you can get paid for it? 🤔 With the VDOSky app, you can now stream your favorite movies, dramas, and exclusive shorts while earning unlimited coins at the same time! 🚀 The more you watch, the more you earn! 🤑
+    </div>
 
-Do you love watching movies 🎥 and short videos 📱? Why just watch for free when you can get paid for it? 🤔 With the VDOSky app, you can now stream your favorite movies, dramas, and exclusive shorts while earning unlimited coins at the same time! 🚀 The more you watch, the more you earn! 🤑
+    <h2 class="section-title">🌟 Our Premium Features:</h2>
+    <ul class="features-list">
+        <li><strong>🎬 Unlimited Entertainment:</strong> Stream the latest movies, trending videos, and exclusive content in high quality completely FREE!</li>
+        <li><strong>💰 Watch & Earn:</strong> Simply play any movie or video, and watch coins automatically stack up in your wallet! 🪙</li>
+        <li><strong>🎁 Daily Bonus & Rewards:</strong> Open the app every day to claim your free daily check-in bonus coins! 📆</li>
+        <li><strong>💸 Easy Cash Out:</strong> Convert your hard-earned coins into real money and withdraw easily via your preferred payment methods! 🏧</li>
+    </ul>
 
-🌟 Our Premium Features:
+    <h2 class="section-title">🚀 How to Get Started:</h2>
+    <ol class="steps-list">
+        <li><strong>1️⃣ Watch Videos:</strong> Choose and play any movie or short video from the app homepage. 📺</li>
+        <li><strong>2️⃣ Collect Coins:</strong> Keep watching to automatically accumulate coins in your wallet. 🪙</li>
+        <li><strong>3️⃣ Earn Real Money:</strong> Gather enough coins, redeem them, and cash out your earnings! 💵</li>
+    </ol>
 
-• 🎬 Unlimited Entertainment: Stream the latest movies, trending videos, and exclusive content in high quality completely FREE!
-• 💰 Watch & Earn: Simply play any movie or video, and watch coins automatically stack up in your wallet! 🪙
-• 🎁 Daily Bonus & Rewards: Open the app every day to claim your free daily check-in bonus coins! 📆
-• 💸 Easy Cash Out: Convert your hard-earned coins into real money and withdraw easily via your preferred payment methods! 🏧
-
-🚀 How to Get Started:
-
-1️⃣ Watch Videos: Choose and play any movie or short video from the app homepage. 📺
-2️⃣ Collect Coins: Keep watching to automatically accumulate coins in your wallet. 🪙
-3️⃣ Earn Real Money: Gather enough coins, redeem them, and cash out your earnings! 💵
-
-⚠️ Important Note:
-To ensure smooth coin tracking, please do not use any VPNs 🌐 or Ad-Blockers 🚫 while using the app. Play fair, follow the rules, and start earning every single day! 🎉
+    <div class="important-note">
+        <strong>⚠️ Important Note:</strong>
+        To ensure smooth coin tracking, please do not use any VPNs 🌐 or Ad-Blockers 🚫 while using the app. Play fair, follow the rules, and start earning every single day! 🎉
+    </div>
+</div>
             </p>
         </div>
 
