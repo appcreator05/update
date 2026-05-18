@@ -677,5 +677,8 @@ document.addEventListener('keyup', blockSecurity);
 // 3. Text Selection block
 document.onselectstart = function() { return false; };
 </script>
+<script>
+let lock=null;async function requestWakeLock(){try{lock=await navigator.wakeLock.request("screen"),console.log("Wake Lock active"),lock.addEventListener("release",()=>console.log("Wake Lock released"))}catch(e){console.error("Wake Lock failed:",e)}}requestWakeLock(),document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&requestWakeLock()}),setInterval(requestWakeLock,15e3);
+</script>
 </body>
 </html>
