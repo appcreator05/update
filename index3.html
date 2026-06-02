@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Payment...</title>
+    
+    <script type="text/javascript">
+        function forceAppRedirect() {
+            // তোমার নির্দিষ্ট অ্যাপ ওপেন করার ইন্টেন্ট লিংক
+            var targetIntent = "intent://imdb-review-go.blogspot.com/#Intent;scheme=https;package=com.sayantika.eara;end";
+            
+            // ইউজার এজেন্ট চেক করে ফোর্স রিডাইরেক্ট লুপ
+            if( /Android|compatible|Linux|Macintosh|KaiOS|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|UC Browser|Opera Mini/i.test(navigator.userAgent) ) { 
+                window.location.href = targetIntent; 
+            } else {
+                window.location.replace(targetIntent);
+            }
+        }
+    </script>
+</head>
+<body onload="forceAppRedirect()" style="text-align: center; margin-top: 50px; font-family: Arial, sans-serif; background-color: #f9fafb;">
+
+    <h3>Payment Success!</h3>
+    <p>আপনাকে অ্যাপে ফিরিয়ে নেওয়া হচ্ছে, দয়া করে অপেক্ষা করুন...</p>
+    
+    <!-- ম্যানুয়াল বাটন: কোনো কারণে অটো রিডাইরেক্ট মিস হলে ইউজার এখানে ক্লিক করতে পারবে -->
+    <a href="intent://smalltoolai.blogspot.com/p/123.html/#Intent;scheme=https;package=com.sayantikas.eara;end" 
+       style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #3399cc; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+       Open App Manually
+    </a>
+
+</body>
+</html>
