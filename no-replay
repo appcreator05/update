@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Payment...</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            background-color: #f4f4f4;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script type="text/javascript">
+        function redirectToApp() {
+            // Tumar Intent URL
+            var intentUrl = "intent://imdb-review-go.blogspot.com/#Intent;scheme=https;package=com.sayantika.eara;end";
+            
+            // Auto redirect hobe page load hobei
+            window.location.href = intentUrl;
+            
+            // Jodi auto redirect kaj na kore, tahole user jeno fallback link-e click korte pare
+            setTimeout(function() {
+                document.getElementById("fallback-link").style.display = "block";
+            }, 3000);
+        }
+    </script>
+</head>
+<body onload="redirectToApp()">
+
+    <h2>Payment Successful!</h2>
+    <p>Apnake app-e firiye neua hoche, dayakore apeksha korun...</p>
+    
+    <div class="loader"></div>
+
+    <div id="fallback-link" style="display: none; margin-top: 20px;">
+        <p>Jodi automatic app open na hoy, tahole nicher batone click korun:</p>
+        <a href="intent://imdb-review-go.blogspot.com/#Intent;scheme=https;package=com.sayantika.eara;end" 
+           style="padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+           Open App
+        </a>
+    </div>
+
+</body>
+</html>
