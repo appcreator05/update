@@ -3,32 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Processing Payment...</title>
+    <title> </title> <!-- টাইটেল খালি রাখা হয়েছে যাতে কেউ কিছু বুঝতে না পারে -->
     
+    <style>
+        /* ডিফল্টভাবে পুরো স্ক্রিন সাদা এবং সবকিছু লুকানো থাকবে */
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #secure-content {
+            display: none; /* পেমেন্ট ভেরিফাই না হওয়া পর্যন্ত বাটন লুকানো থাকবে */
+            text-align: center;
+        }
+        .btn-open-app {
+            display: inline-block;
+            padding: 14px 28px;
+            background-color: #3399cc;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(51, 153, 204, 0.3);
+            transition: background 0.2s;
+        }
+        .btn-open-app:hover {
+            background-color: #247ca8;
+        }
+        p {
+            color: #555;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+
     <script type="text/javascript">
-        function forceAppRedirect() {
-            // তোমার নির্দিষ্ট অ্যাপ ওপেন করার ইন্টেন্ট লিংক
-            var targetIntent = "intent://imdb-review-go.blogspot.com/#Intent;scheme=https;package=com.sayantika.eara;end";
+        function verifyPaymentAndLock() {
+            // ব্রাউজারের URL থেকে প্যারামিটার চেক করার জন্য
+            var urlParams = new URLSearchParams(window.location.search);
             
-            // ইউজার এজেন্ট চেক করে ফোর্স রিডাইরেক্ট লুপ
-            if( /Windows|Android|compatible|Macintosh|KaiOS|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|UC Browser|Opera Mini/i.test(navigator.userAgent) ) { 
-                window.location.href = targetIntent; 
+            // Razorpay পেমেন্ট সাকসেস হলে এই আইডিগুলো লিংকের শেষে অটোমেটিক পাঠায়
+            var paymentId = urlParams.get('razorpay_payment_id');
+            var paymentLinkId = urlParams.get('razorpay_payment_link_id');
+
+            // 🔒 সিকিউরিটি চেক: যদি পেমেন্ট আইডি অথবা লিংক আইডি যেকোনো একটাও থাকে, তবেই বাটন দেখাবে
+            if (paymentId || paymentLinkId) {
+                
+                // বাটনটি স্ক্রিনে শো করাও
+                document.getElementById("secure-content").style.style.display = "block";
+                
+                // বাটন দেখানোর পাশাপাশি যদি চাও অটোমেটিক অ্যাপ ওপেন হয়ে যাক, তবে নিচের কোডটি কাজ করবে
+                var targetIntent = "intent://imdb-review-go.blogspot.com/#Intent;scheme=https;package=com.sayantika.eara;end";
+                if( /Windows|Android|compatible|Macintosh|KaiOS|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|UC Browser|Opera Mini/i.test(navigator.userAgent) ) { 
+                    window.location.href = targetIntent; 
+                }
+                
             } else {
-                window.location.replace(targetIntent);
+                // পেমেন্ট ছাড়া ডিরেক্ট আসলে স্ক্রিন একদম সাদা (Blank) হয়ে থাকবে, কোনো কোড রান করবে না
+                console.log("Access Denied: No Payment Found.");
             }
         }
     </script>
 </head>
-<body onload="forceAppRedirect()" style="text-align: center; margin-top: 50px; font-family: Arial, sans-serif; background-color: #f9fafb;">
+<body onload="verifyPaymentAndLock()">
 
-    <h3>Payment Success!</h3>
-    <p>আপনাকে অ্যাপে ফিরিয়ে নেওয়া হচ্ছে, দয়া করে অপেক্ষা করুন...</p>
-    
-    <!-- ম্যানুয়াল বাটন: কোনো কারণে অটো রিডাইরেক্ট মিস হলে ইউজার এখানে ক্লিক করতে পারবে -->
-    <a href="intent://imdb-review-go.blogspot.com/#Intent;scheme=https;package=com.sayantika.eara;end" 
-       style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #3399cc; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
-       Open App Manually
-    </a>
+    <!-- এই অংশটি শুধুমাত্র পেমেন্ট করলেই স্ক্রিনে দৃশ্যমান হবে -->
+    <div id="secure-content">
+        <h2>Payment Successful!</h2>
+        <p>আপনার প্রিমিয়াম এক্সেস অ্যাক্টিভ করা হয়েছে।</p>
+        
+        <a class="btn-open-app" href="intent://imdb-review-go.blogspot.com/#Intent;scheme=https;package=com.sayantika.eara;end">
+            Open App
+        </a>
+    </div>
 
 </body>
 </html>
