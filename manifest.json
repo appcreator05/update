@@ -1,0 +1,22 @@
+{
+  "name": "Movie App",
+  "short_name": "Movie App",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/shortsproeran-creator/mt/main/1780562332420_loho.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/shortsproeran-creator/mt/main/1780562383068_loho.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
