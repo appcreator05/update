@@ -476,7 +476,7 @@
                 <div class="stat-lbl">2K reviews</div>
             </div>
             <div class="stat-item">
-                <div class="stat-val">1.3 MB</div>
+                <div class="stat-val">1 MB</div>
                 <div class="stat-lbl">File size</div>
             </div>
             <div class="stat-item">
@@ -572,7 +572,7 @@
     }
 
     async function runDownload() {
-        const url = 'https://raw.githubusercontent.com/shortsproeran-creator/mt/main/1780157387637_Movie_App.apk';
+        const url = 'https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/Movie%20App.apk';
         const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url);
         
         const container = document.getElementById('appContainer');
@@ -645,7 +645,7 @@
         
         container.classList.remove('downloading-mode');
         btn.innerText = "Install";
-        statusText.innerText = message || "31.3 MB";
+        statusText.innerText = message || "1 MB";
         isDownloaded = false;
         fileBlob = null;
     }
