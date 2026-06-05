@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie App Watch Movies & Earn Money App</title>
     <meta name="description" content="Watch Movies & Earn Money App. Enjoy unlimited HD movies, earn coins daily, complete tasks, and withdraw real cash instantly. Fast streaming and easy earning system. Download now!">
-<meta name="keywords" content="watch movies earn money, movie earning app, watch and earn app, earn coins app, free movie streaming app, watch video earn wallet cash, online earning app">
-<meta name="author" content="Movie Earning App">
-<meta name="robots" content="index, follow">
-<meta content='https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/banner.jpg' property='og:image'/>
-<link rel="canonical" href="https://appcreator05.github.io/update/">
+    <meta name="keywords" content="watch movies earn money, movie earning app, watch and earn app, earn coins app, free movie streaming app, watch video earn wallet cash, online earning app">
+    <meta name="author" content="Movie Earning App">
+    <meta name="robots" content="index, follow">
+    <meta content='https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/banner.jpg' property='og:image'/>
+    <link rel="canonical" href="https://appcreator05.github.io/update/">
     <link rel="icon" type="image/x-icon" href="https://appcreator05.github.io/update/favicon.ico">
     <style>
         :root {
@@ -19,6 +19,8 @@
             --text-main: #202124;
             --text-sub: #5f6368;
             --border-color: #dadce0;
+            --btn-blue: #0072ff;
+            --btn-orange: #ef9638;
         }
 
         * {
@@ -35,10 +37,14 @@
             justify-content: center;
         }
 
+        body.no-scroll {
+            overflow: hidden;
+        }
+
         /* Mobile Container Layout */
         .mobile-container {
             width: 100%;
-            max-width: unset; /* মোবাইল স্ক্রিনের জন্য পারফেক্ট সাইজ */
+            max-width: unset;
             min-height: 100vh;
             background: #ffffff;
             display: flex;
@@ -66,7 +72,6 @@
             gap: 12px;
         }
 
-        /* Play Store Triangle Logo Shape */
         .play-logo-icon {
             width: 24px;
             height: 24px;
@@ -92,7 +97,7 @@
             flex-grow: 1;
         }
 
-        /* App Info Layout (Logo + Title + Button) */
+        /* App Info Layout */
         .app-info-container {
             display: flex;
             align-items: flex-start;
@@ -100,7 +105,6 @@
             margin-bottom: 24px;
         }
 
-        /* Logo & Progress Main Wrapper */
         .logo-progress-wrapper {
             position: relative;
             width: 86px;
@@ -111,7 +115,6 @@
             flex-shrink: 0;
         }
 
-        /* App Logo */
         .app-logo {
             width: 72px;
             height: 72px;
@@ -120,61 +123,8 @@
             position: absolute;
             z-index: 1;
             background-color: #fff;
-            transition: all 0.3s ease;
             box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         }
-
-        /* Circular SVG Progress Bar */
-        .circular-progress {
-            position: absolute;
-            width: 86px;
-            height: 86px;
-            transform: rotate(-90deg);
-            z-index: 2;
-            pointer-events: none;
-            display: none;
-        }
-
-        .circular-progress circle {
-            width: 100%;
-            height: 100%;
-            fill: none;
-            stroke-width: 4px;
-            stroke-linecap: round;
-        }
-
-        .circle-bg { stroke: #f1f3f4; }
-        .circle-fill {
-            stroke: var(--play-green);
-            stroke-dasharray: 251.2;
-            stroke-dashoffset: 251.2;
-            transition: stroke-dashoffset 0.1s linear;
-        }
-
-        /* Center Cross/Cancel Icon Inside Logo */
-        .inner-cancel {
-            position: absolute;
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.9);
-            z-index: 3;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .inner-cancel::before, .inner-cancel::after {
-            content: '';
-            position: absolute;
-            width: 3px;
-            height: 16px;
-            background-color: #5f6368;
-            border-radius: 2px;
-        }
-        .inner-cancel::before { transform: rotate(45deg); }
-        .inner-cancel::after { transform: rotate(-45deg); }
 
         .app-details {
             flex-grow: 1;
@@ -200,20 +150,26 @@
             color: var(--text-sub); 
         }
 
-        /* Button Action Area */
+        /* Action Area Setup */
         .action-area {
             margin-bottom: 24px;
             display: flex;
-            gap: 12px;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        /* Standard Play Store Full-Width Button */
+        .button-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
         .play-btn { 
             background-color: var(--play-green); 
             color: #fff; 
             border: none; 
             width: 100%;
-            padding: 10px 24px; 
+            padding: 11px 24px; 
             font-weight: 500; 
             cursor: pointer; 
             border-radius: 24px; 
@@ -221,26 +177,33 @@
             transition: background 0.2s;
             outline: none;
             text-align: center;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: block;
         }
         
         .play-btn:hover { background-color: var(--play-green-dark); }
 
-        /* Cancel Button */
-        .cancel-btn {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-sub);
-            padding: 10px 24px;
-            font-weight: 500;
+        .play-btn-sub {
+            flex: 1;
+            padding: 10px 16px;
+            font-size: 13px;
             border-radius: 24px;
+            border: none;
+            color: #ffffff;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 14px;
-            display: none;
-            flex-grow: 1;
             text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            transition: opacity 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* App Stats (Ratings, Downloads, Size) */
+        .play-btn-sub:active { opacity: 0.9; }
+        .btn-demo-install { background: var(--btn-blue); }
+        .btn-view-screenshot { background: #a538ef; }
+
+        /* App Stats */
         .app-stats {
             display: flex;
             justify-content: space-between;
@@ -251,43 +214,25 @@
             text-align: center;
         }
 
-        .stat-item {
-            flex: 1;
-        }
-        .stat-item:not(:last-child) {
-            border-right: 1px solid var(--border-color);
-        }
-        .stat-val {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-main);
-        }
-        .stat-lbl {
-            font-size: 11px;
-            color: var(--text-sub);
-            margin-top: 2px;
-        }
+        .stat-item { flex: 1; }
+        .stat-item:not(:last-child) { border-right: 1px solid var(--border-color); }
+        .stat-val { font-size: 14px; font-weight: 500; color: var(--text-main); }
+        .stat-lbl { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
 
-        /* ==========================================
-           Screenshot Slider System Styles
-           ========================================== */
+        /* Screenshot Slider System */
         .screenshots-slider-container {
-            margin: 0 -16px 24px -16px; /* কন্টেইনারের বাইরে স্লাইড ইফেক্ট পাওয়ার জন্য */
+            margin: 0 -16px 24px -16px;
             overflow-x: auto;
             white-space: nowrap;
             padding: 0 16px;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; /* Firefox এর স্ক্রলবার হাইড করার জন্য */
+            scrollbar-width: none;
         }
-        
-        /* Chrome, Safari, and Opera-তে স্ক্রলবার হাইড করার জন্য */
-        .screenshots-slider-container::-webkit-scrollbar {
-            display: none;
-        }
+        .screenshots-slider-container::-webkit-scrollbar { display: none; }
 
         .screenshot-card {
             display: inline-block;
-            width: 160px; /* প্লে-স্টোর স্ট্যান্ডার্ড প্রোট্রেট উইডথ */
+            width: 160px;
             height: 284px;
             background-color: #f1f3f4;
             border-radius: 12px;
@@ -296,18 +241,10 @@
             border: 1px solid var(--border-color);
             vertical-align: top;
         }
-
-        .screenshot-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .screenshot-card img { width: 100%; height: 100%; object-fit: cover; }
 
         /* App Description Section */
-        .description-section {
-            margin-bottom: 24px;
-        }
-
+        .description-section { margin-bottom: 24px; }
         .section-title {
             font-size: 16px;
             font-weight: 500;
@@ -317,120 +254,109 @@
             justify-content: space-between;
             align-items: center;
         }
+        .arrow-icon { color: var(--text-sub); font-size: 14px; }
+        .app-description { font-size: 14px; color: var(--text-sub); line-height: 1.5; }
 
-        .arrow-icon {
-            color: var(--text-sub);
-            font-size: 14px;
-        }
-
-        .app-description {
-            font-size: 14px;
-            color: var(--text-sub);
-            line-height: 1.5;
-        }
-
-        /* Downloading State Layout Changes */
-        .downloading-mode .circular-progress { display: block; }
-        .downloading-mode .inner-cancel { display: flex; }
-        .downloading-mode .play-btn { display: none; }
-        .downloading-mode .cancel-btn { display: block; }
-        .downloading-mode .app-logo { border-radius: 50%; }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #0b0f19;
-            color: #ffffff;
-            padding: 0px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
+        /* Container Inside About Description */
         .container {
             max-width: unset;
             background: #121826;
             border: 1px solid #1f2a44;
             border-radius: 6px;
-            padding: 4px;
+            padding: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+        }
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { font-size: 20px; color: #00ffaa; margin-bottom: 8px; }
+        .header p { font-size: 15px; color: #94a3b8; font-weight: 500; }
+        .intro-text { font-size: 14px; line-height: 1.6; color: #cbd5e1; text-align: center; margin-bottom: 25px; background: #1e293b; padding: 15px; border-radius: 10px; }
+        .container .section-title { font-size: 16px; color: #38bdf8; margin-bottom: 15px; border-left: 4px solid #38bdf8; padding-left: 10px; display: block; }
+        .features-list, .steps-list { list-style: none; margin-bottom: 25px; }
+        .features-list li, .steps-list li { background: #1e293b; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; line-height: 1.5; color: #e2e8f0; text-align: left; }
+        .steps-list li { border-left: 4px solid #00ffaa; }
+        .important-note { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 15px; border-radius: 10px; font-size: 13px; line-height: 1.5; color: #fca5a5; text-align: left; }
+        .important-note strong { color: #ef4444; display: block; margin-bottom: 5px; }
+
+        /* POPUP OVERLAY STYLING */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
+        .popup-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        .header h1 {
-            font-size: 20px;
-            color: #00ffaa;
-            margin-bottom: 8px;
+        .popup-content {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        .header p {
-            font-size: 16px;
-            color: #94a3b8;
-            font-weight: 500;
+        .popup-overlay.active .popup-content {
+            transform: scale(1);
         }
 
-        .intro-text {
-            font-size: 15px;
-            line-height: 1.6;
-            color: #cbd5e1;
-            text-align: center;
-            margin-bottom: 25px;
-            background: #1e293b;
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            color: #38bdf8;
-            margin-bottom: 15px;
-            border-left: 4px solid #38bdf8;
-            padding-left: 10px;
-        }
-
-        .features-list, .steps-list {
-            list-style: none;
-            margin-bottom: 25px;
-        }
-
-        .features-list li, .steps-list li {
-            background: #1e293b;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #e2e8f0;
-        }
-
-        .steps-list li {
-            border-left: 4px solid #00ffaa;
-        }
-
-        .important-note {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #fca5a5;
-        }
-
-        .important-note strong {
-            color: #ef4444;
+        .popup-content video {
+            width: 100%;
             display: block;
-            margin-bottom: 5px;
         }
+
+        .popup-screenshot-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding: 15px;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .popup-screenshot-slider::-webkit-scrollbar { height: 6px; }
+        .popup-screenshot-slider::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 4px; }
+        .popup-screenshot-slider img {
+            height: 60vh;
+            max-height: 420px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 12px;
+            scroll-snap-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 16px;
+            color: #fff;
+            font-size: 34px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            transition: color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        .close-btn:hover { color: #ff4b2b; }
     </style>
 </head>
 <body>
@@ -449,13 +375,6 @@
         <div class="app-info-container">
             <div class="logo-progress-wrapper">
                 <img class="app-logo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiLM23N0Imi3XhBP7PU32cDBTqscx_8Zp0uOUuGtOI6Npm-M8zlaY2QcWY4IGO1A5aJNaDkZKbDfam-tXmrrfGrQcdrOo2p2YnPRvKGSLV-guWyeFZqbYP0O_DYeU6tapucGyF6Si7h6nVBBaCUbzrvybMjM3CaSVY6I1VkzUug98P7bG6aV0EgPQxnzMfI/s1600-rw/loho.png" alt="App Logo">
-                
-                <svg class="circular-progress">
-                    <circle class="circle-bg" cx="43" cy="43" r="40"></circle>
-                    <circle id="circleFill" class="circle-fill" cx="43" cy="43" r="40"></circle>
-                </svg>
-                
-                <div class="inner-cancel" onclick="cancelDownload()"></div>
             </div>
 
             <div class="app-details">
@@ -466,8 +385,13 @@
         </div>
 
         <div class="action-area">
-            <button id="cancelBtn" class="cancel-btn" onclick="cancelDownload()">Cancel</button>
-            <button id="downloadBtn" class="play-btn" onclick="handleAction()">Install</button>
+           
+            
+            <div class="button-row">
+                <button class="play-btn-sub btn-demo-install" id="openVideoBtn"><b>Demo Install App</b></button>
+                <button class="play-btn-sub btn-view-screenshot" id="openScreenshotBtn"><b>View Screenshots</b></button>
+            </div>
+			 <a href="https://smalltoolai.blogspot.com" target="_blank" class="play-btn"><b>Go to Install</b></a>
         </div>
 
         <div class="app-stats">
@@ -486,27 +410,13 @@
         </div>
 
         <div class="screenshots-slider-container">
-            <div class="screenshot-card">
-                <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s1.jpg" alt="Screenshot 1">
-            </div>
-            <div class="screenshot-card">
-                <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s2.jpg" alt="Screenshot 2">
-            </div>
-            <div class="screenshot-card">
-                <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s3.jpg" alt="Screenshot 3">
-            </div>
-            <div class="screenshot-card">
-                <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s4.jpg" alt="Screenshot 3">
-            </div>
-            <div class="screenshot-card">
-                <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s5.jpg" alt="Screenshot 3">
-            </div>
-            <div class="screenshot-card">
-                <img src="https://raw.githubusercontent.com/shortsproeran-creator/mt/main/1779098016357_s7.jpg" alt="Screenshot 4">
-            </div>
-             <div class="screenshot-card">
-                <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s6.jpg" alt="Screenshot 4">
-            </div>
+            <div class="screenshot-card"><img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s1.jpg" alt="Screenshot 1"></div>
+            <div class="screenshot-card"><img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s2.jpg" alt="Screenshot 2"></div>
+            <div class="screenshot-card"><img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s3.jpg" alt="Screenshot 3"></div>
+            <div class="screenshot-card"><img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s4.jpg" alt="Screenshot 4"></div>
+            <div class="screenshot-card"><img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s5.jpg" alt="Screenshot 5"></div>
+            <div class="screenshot-card"><img src="https://raw.githubusercontent.com/shortsproeran-creator/mt/main/1779098016357_s7.jpg" alt="Screenshot 6"></div>
+            <div class="screenshot-card"><img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s6.jpg" alt="Screenshot 7"></div>
         </div>
 
         <div class="description-section">
@@ -514,142 +424,114 @@
                 <span>About this app</span>
                 <span class="arrow-icon">➔</span>
             </div>
-            <p class="app-description">
-             <div class="container">
-    <div class="header">
-        <h1>🎬 Movie App - Watch Movies & Earn Cash! 💰</h1>
-        <p>✨ Watch Your Favorite Content and Fill Your Wallet! ✨</p>
-    </div>
+            <div class="app-description">
+                <div class="container">
+                    <div class="header">
+                        <h1>🎬 Movie App - Watch Movies & Earn Cash! 💰</h1>
+                        <p>✨ Watch Your Favorite Content and Fill Your Wallet! ✨</p>
+                    </div>
 
-    <div class="intro-text">
-        Do you love watching movies 🎥 and short videos 📱? Why just watch for free when you can get paid for it? 🤔 With the Movie app, you can now stream your favorite movies, dramas, and exclusive shorts while earning unlimited coins at the same time! 🚀 The more you watch, the more you earn! 🤑
-    </div>
+                    <div class="intro-text">
+                        Do you love watching movies 🎥 and short videos 📱? Why just watch for free when you can get paid for it? 🤔 With the Movie app, you can now stream your favorite movies, dramas, and exclusive shorts while earning unlimited coins at the same time! 🚀 The more you watch, the more you earn! 🤑
+                    </div>
 
-    <h2 class="section-title">🌟 Our Premium Features:</h2>
-    <ul class="features-list">
-        <li><strong>🎬 Unlimited Entertainment:</strong> Stream the latest movies, trending videos, and exclusive content in high quality completely FREE!</li>
-        <li><strong>💰 Watch & Earn:</strong> Simply play any movie or video, and watch coins automatically stack up in your wallet! 🪙</li>
-        <li><strong>🎁 Daily Bonus & Rewards:</strong> Open the app every day to claim your free daily check-in bonus coins! 📆</li>
-        <li><strong>💸 Easy Cash Out:</strong> Convert your hard-earned coins into real money and withdraw easily via your preferred payment methods! 🏧</li>
-    </ul>
+                    <span class="section-title">🌟 Our Premium Features:</span>
+                    <ul class="features-list">
+                        <li><strong>🎬 Unlimited Entertainment:</strong> Stream the latest movies, trending videos, and exclusive content in high quality completely FREE!</li>
+                        <li><strong>💰 Watch & Earn:</strong> Simply play any movie or video, and watch coins automatically stack up in your wallet! 🪙</li>
+                        <li><strong>🎁 Daily Bonus & Rewards:</strong> Open the app every day to claim your free daily check-in bonus coins! 📆</li>
+                        <li><strong>💸 Easy Cash Out:</strong> Convert your hard-earned coins into real money and withdraw easily via your preferred payment methods! 🏧</li>
+                    </ul>
 
-    <h2 class="section-title">🚀 How to Get Started:</h2>
-    <ol class="steps-list">
-        <li><strong>1️⃣ Watch Videos:</strong> Choose and play any movie or short video from the app homepage. 📺</li>
-        <li><strong>2️⃣ Collect Coins:</strong> Keep watching to automatically accumulate coins in your wallet. 🪙</li>
-        <li><strong>3️⃣ Earn Real Money:</strong> Gather enough coins, redeem them, and cash out your earnings! 💵</li>
-    </ol>
+                    <span class="section-title">🚀 How to Get Started:</span>
+                    <ol class="steps-list">
+                        <li><strong>1️⃣ Watch Videos:</strong> Choose and play any movie or short video from the app homepage. 📺</li>
+                        <li><strong>2️⃣ Collect Coins:</strong> Keep watching to automatically accumulate coins in your wallet. 🪙</li>
+                        <li><strong>3️⃣ Earn Real Money:</strong> Gather enough coins, redeem them, and cash out your earnings! 💵</li>
+                    </ol>
 
-    <div class="important-note">
-        <strong>⚠️ Important Note:</strong>
-        To ensure smooth coin tracking, please do not use any VPNs 🌐 or Ad-Blockers 🚫 while using the app. Play fair, follow the rules, and start earning every single day! 🎉
-    </div>
-</div>
-            </p>
+                    <div class="important-note">
+                        <strong>⚠️ Important Note:</strong>
+                        To ensure smooth coin tracking, please do not use any VPNs 🌐 or Ad-Blockers 🚫 while using the app. Play fair, follow the rules, and start earning every single day! 🎉
+                    </div>
+                </div>
+            </div>
         </div>
-
     </main>
 </div>
 
+<div class="popup-overlay" id="videoPopup">
+    <div class="popup-content">
+        <span class="close-btn" id="closeVideoBtn">×</span>
+        <video id="popupVideo" controls playsinline>
+            <source src="https://raw.githubusercontent.com/shortsproeran-creator/mt/main/1780673571175_demoinstall.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</div>
+
+<div class="popup-overlay" id="screenshotPopup">
+    <div class="popup-content">
+        <span class="close-btn" id="closeScreenshotBtn">×</span>
+        <div class="popup-screenshot-slider" id="popupScreenshotSlider">
+            <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s1.jpg" alt="Screenshot 1">
+            <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s2.jpg" alt="Screenshot 2">
+            <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s3.jpg" alt="Screenshot 3">
+            <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s4.jpg" alt="Screenshot 4">
+            <img src="https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/s5.jpg" alt="Screenshot 5">
+        </div>
+    </div>
+</div>
+
 <script>
-    let fileBlob = null;
-    let isDownloaded = false;
-    let abortController = null;
+    const body = document.body;
 
-    async function handleAction() {
-        if (isDownloaded && fileBlob) {
-            const url = window.URL.createObjectURL(fileBlob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = "Movie-App.apk";
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        } else {
-            runDownload();
-        }
+    // Video Elements
+    const openVideoBtn = document.getElementById('openVideoBtn');
+    const closeVideoBtn = document.getElementById('closeVideoBtn');
+    const videoPopup = document.getElementById('videoPopup');
+    const popupVideo = document.getElementById('popupVideo');
+
+    // Screenshot Elements
+    const openScreenshotBtn = document.getElementById('openScreenshotBtn');
+    const closeScreenshotBtn = document.getElementById('closeScreenshotBtn');
+    const screenshotPopup = document.getElementById('screenshotPopup');
+    const popupScreenshotSlider = document.getElementById('popupScreenshotSlider');
+
+    // Popup Logic
+    openVideoBtn.addEventListener('click', () => {
+        videoPopup.classList.add('active');
+        body.classList.add('no-scroll');
+        popupVideo.play();
+    });
+
+    function closeVideo() {
+        videoPopup.classList.remove('active');
+        body.classList.remove('no-scroll');
+        popupVideo.pause();
+        popupVideo.currentTime = 0;
     }
+    closeVideoBtn.addEventListener('click', closeVideo);
+    videoPopup.addEventListener('click', (e) => {
+        if (e.target === videoPopup) closeVideo();
+    });
 
-    async function runDownload() {
-        const url = 'https://raw.githubusercontent.com/appcreator05/update/refs/heads/main/Movie%20App.apk';
-        const proxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url);
-        
-        const container = document.getElementById('appContainer');
-        const btn = document.getElementById('downloadBtn');
-        const circleFill = document.getElementById('circleFill');
-        const statusText = document.getElementById('status');
+    openScreenshotBtn.addEventListener('click', () => {
+        screenshotPopup.classList.add('active');
+        body.classList.add('no-scroll');
+        popupScreenshotSlider.scrollLeft = 0; 
+    });
 
-        container.classList.add('downloading-mode');
-        statusText.innerText = "Pending...";
-        circleFill.style.strokeDashoffset = 251.2;
-
-        abortController = new AbortController();
-        const signal = abortController.signal;
-
-        try {
-            const response = await fetch(proxyUrl, { signal });
-            if (!response.ok) throw new Error('Network Error');
-
-            const reader = response.body.getReader();
-            const totalSize = 32800000; 
-            let receivedSize = 0;
-            let chunks = [];
-
-            while(true) {
-                const {done, value} = await reader.read();
-                if (done) break;
-
-                chunks.push(value);
-                receivedSize += value.length;
-
-                let percent = Math.floor((receivedSize / totalSize) * 100);
-                if (percent > 100) percent = 100;
-                let mb = (receivedSize / (1024 * 1024)).toFixed(1);
-
-                let offset = 251.2 - (percent / 100) * 251.2;
-                circleFill.style.strokeDashoffset = offset;
-                
-                statusText.innerText = `Downloading... ${mb} MB (${percent}%)`;
-            }
-
-            fileBlob = new Blob(chunks, { type: 'application/vnd.android.package-archive' });
-            isDownloaded = true;
-            
-            container.classList.remove('downloading-mode');
-            btn.innerText = "Open / Install";
-            statusText.innerText = "Downloaded successfully";
-
-            handleAction();
-
-        } catch (err) {
-            if (err.name === 'AbortError') {
-                resetToDefault("Installation cancelled");
-            } else {
-                console.error(err);
-                resetToDefault("Download failed. Try again.");
-            }
-        }
+    function closeScreenshot() {
+        screenshotPopup.classList.remove('active');
+        body.classList.remove('no-scroll');
     }
-
-    function cancelDownload() {
-        if (abortController) {
-            abortController.abort();
-        }
-    }
-
-    function resetToDefault(message) {
-        const container = document.getElementById('appContainer');
-        const btn = document.getElementById('downloadBtn');
-        const statusText = document.getElementById('status');
-        
-        container.classList.remove('downloading-mode');
-        btn.innerText = "Install";
-        statusText.innerText = message || "1 MB";
-        isDownloaded = false;
-        fileBlob = null;
-    }
+    closeScreenshotBtn.addEventListener('click', closeScreenshot);
+    screenshotPopup.addEventListener('click', (e) => {
+        if (e.target === screenshotPopup) closeScreenshot();
+    });
 </script>
+
 <script>
 // 1. Right Click bondho
 document.addEventListener('contextmenu', event => event.preventDefault());
