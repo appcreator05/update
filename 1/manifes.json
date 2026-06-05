@@ -1,0 +1,23 @@
+{
+  "name": "Movie App",
+  "short_name": "MovieApp",
+  "start_url": "/?pwa=true",
+  "display": "standalone",
+  "background_color": "#141414",
+  "theme_color": "#e50914",
+  "id": "/?pwa=true",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/shortsproeran-creator/mt/main/1780539526106_loho.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/shortsproeran-creator/mt/main/1780539526106_loho.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
