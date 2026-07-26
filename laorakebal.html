@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/appcreator05/user@main/app/plyr.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/appcreator05/user@main/app/DC.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/appcreator05/user@main/app/internet.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/appcreator05/user@main/app/update.css" />
+
+</head>
+<body>
+<!-- হেডার ও সার্চ বার -->
+<div class="header">
+    <button class="menuBtn" onclick="openSidebar()">☰ Menu</button>
+    <input autocomplete="off" type="text" id="searchInput" placeholder="Search movies..." onkeyup="searchMovies()">
+</div>
+
+<!-- সাইডবার -->
+<div id="sidebar" class="sidebar">
+    <button class="closeSide" onclick="closeSidebar()">✕</button>
+    <a href="music.html">🎵 Music</a>
+    <a href="qr.html">█║▌ QR Scan</a>
+    <a href="Game/list.html">🕹️ Game</a>
+    <a href="#" onclick="filterMovies('all')">All Movies</a>
+    <div id="categoryList"></div>
+</div>
+
+<!-- মুভি গ্রিড -->
+<div id="movieGrid" class="grid-container"></div>
+
+<!-- ভিডিও পপআপ প্লেয়ার -->
+<div id="videoPopup">
+  <div id="container">
+    <div class="videoBox">
+      <video id="player" playsinline preload="metadata" onerror="handleVideoError()" onstalled="handleVideoStalled()">
+    <source id="videoSource" src="" type="video/mp4">
+    Browser not supported.
+</video>
+    </div>
+    <button class="fullBtn" onclick="toggleFull()">⛶</button>
+    <button class="fullBtn2" onclick="toggleFull()">⛶</button>
+    <!-- এখানে onclick এ closePlayer() এবং filterMovies('all') একসাথে দেওয়া হয়েছে -->
+    <button class="closeBtn" onclick="closePlayer(); filterMovies('all');">✕</button>
+  </div>
+</div>
+
+<!-- এরর পপআপ উইন্ডো -->
+<div id="errorPopup">
+    <div class="errorCard">
+        <h3>This player not work</h3>
+        <a href="https://contact2.me/1CrZJR" target="_blank"><button class="errorBtn">Please Comment</button></a>
+        <button class="closeAlert" onclick="closeThemeErrorPopup()">Cancel</button>
+    </div>
+</div>
+
+<!-- লোডার -->
+<div id="loader"><div class="spinner"></div></div>
+
+<!-- Plyr JS -->
+<script src="https://cdn.jsdelivr.net/gh/appcreator05/user@main/app/plyr.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/appcreator05/user@main/app/internet.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/appcreator05/user@main/app/update.js"></script>
+<script>
+const popup = document.getElementById("videoPopup");
+const container = document.getElementById("container");
+const loader = document.getElementById("loader");
+const videoPlayer = document.getElementById("player");
+const videoSource = document.getElementById("videoSource");
+const grid = document.getElementById('movieGrid');
+
+let allMoviesData = [];
+let displayedCount = 0;
+const batchSize = 30;
+let currentCategory = 'all';
+let isSearching = false;
+
+// IndexedDB Initialization
+let db;
+const dbName = "VDOSkyDB";
+const storeName = "moviesStore";
+const imageStoreName = "imagesStore";
+
+function initDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, 2);
+        request.onerror = (event) => reject(event.target.error);
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            resolve(db);
+        };
+        request.onupgradeneeded = (event) => {
+            const dbInstance = event.target.result;
+            if (!dbInstance.objectStoreNames.contains(storeName)) {
+                dbInstance.createObjectStore(storeName, { keyPath: "id" });
+            }
+            if (!dbInstance.objectStoreNames.contains(imageStoreName)) {
+                dbInstance.createObjectStore(imageStoreName, { keyPath: "url" });
+            }
+        };
+    });
+}
+
+function getCachedMovies() {
+    return new Promise((resolve) => {
+        if (!db) return resolve(null);
+        const transaction = db.transaction(storeName, "readonly");
+        const store = transaction.objectStore(storeName);
+        const request = store.get("all_movies");
+        request.onsuccess = (event) => resolve(event.target.result ? event.target.result.data : null);
+        request.onerror = () => resolve(null);
+    });
+}
+
+function saveMoviesToCache(data) {
+    if (!db) return;
+    const transaction = db.transaction(storeName, "readwrite");
+    const store = transaction.objectStore(storeName);
+    store.put({ id: "all_movies", data: data });
+}
+
+function getCachedImage(url) {
+    return new Promise((resolve) => {
+        if (!db) return resolve(null);
+        try {
+            const transaction = db.transaction(imageStoreName, "readonly");
+            const store = transaction.objectStore(imageStoreName);
+            const request = store.get(url);
+            request.onsuccess = (event) => {
+                if (event.target.result && event.target.result.blob) {
+                    resolve(URL.createObjectURL(event.target.result.blob));
+                } else {
+                    resolve(null);
+                }
+            };
+            request.onerror = () => resolve(null);
+        } catch(e) {
+            resolve(null);
+        }
+    });
+}
+
+function saveImageToCache(url, blob) {
+    if (!db) return;
+    try {
+        const transaction = db.transaction(imageStoreName, "readwrite");
+        const store = transaction.objectStore(imageStoreName);
+        store.put({ url: url, blob: blob });
+    } catch(e) {}
+}
+
+const player = new Plyr('#player', {
+    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume'],
+    ratio: '16:9',
+    clickToPlay: true
+});
+
+function fixPlyrTimeline() {
+    const progressContainer = document.querySelector('.plyr__progress');
+    const seekInput = document.querySelector('.plyr__progress input[type=range]');
+    if (!progressContainer || !seekInput) return;
+
+    function handleSeek(e) {
+        if (window.innerHeight > window.innerWidth) {
+            const rect = progressContainer.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            
+            const relativeY = touch.clientY - rect.top;
+            let percentage = relativeY / rect.height;
+            
+            if (percentage < 0) percentage = 0;
+            if (percentage > 1) percentage = 1;
+            
+            if (player.duration) {
+                const newTime = player.duration * percentage;
+                player.currentTime = newTime;
+                
+                const inputMax = seekInput.getAttribute('max') || 100;
+                const inputValue = percentage * inputMax;
+                seekInput.value = inputValue;
+                
+                const event = new Event('input', { bubbles: true });
+                seekInput.dispatchEvent(event);
+            }
+            
+            if (e.type === 'click') {
+                e.preventDefault();
+            }
+            e.stopPropagation();
+        }
+    }
+
+    progressContainer.removeEventListener('touchstart', handleSeek);
+    progressContainer.removeEventListener('touchmove', handleSeek);
+    progressContainer.removeEventListener('click', handleSeek);
+
+    progressContainer.addEventListener('touchstart', handleSeek, { passive: false });
+    progressContainer.addEventListener('touchmove', handleSeek, { passive: false });
+    progressContainer.addEventListener('click', handleSeek, { passive: false });
+}
+
+function processAndShuffleMovies(movies) {
+    if (movies.length <= 5) return movies;
+    let firstFive = movies.slice(0, 5);
+    let remaining = movies.slice(5);
+    
+    for (let i = remaining.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+    }
+    return [...firstFive, ...remaining];
+}
+
+async function loadMovies() {
+    loader.style.display = "flex";
+    try {
+        await initDB();
+        
+        const cachedData = await getCachedMovies();
+        if (cachedData && cachedData.length > 0) {
+            allMoviesData = processAndShuffleMovies(cachedData);
+            initGridView();
+            loader.style.display = "none";
+            
+            fetch("https://raw.githubusercontent.com/appcreator05/post/main/8468988.json" + "?t=" + new Date().getTime())
+                .then(res => res.json())
+                .then(freshData => {
+                    saveMoviesToCache(freshData);
+                }).catch(() => {});
+            return;
+        }
+
+        const res = await fetch("https://raw.githubusercontent.com/appcreator05/post/main/8468988.json" + "?t=" + new Date().getTime());
+        let rawData = await res.json();
+        
+        saveMoviesToCache(rawData);
+        allMoviesData = processAndShuffleMovies(rawData);
+        initGridView();
+    } catch (err) { 
+        console.error("Error loading JSON/IndexedDB:", err); 
+    }
+    loader.style.display = "none";
+}
+
+function initGridView() {
+    displayedCount = 0;
+    grid.innerHTML = "";
+    loadMoreMovies();
+    loadCategories(allMoviesData);
+}
+
+// Intersection Observer: কার্ড স্ক্রিনে আসার পর src এ লিংক সেট হবে এবং অ্যানিমেশন ট্রিগার করবে
+const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const img = entry.target;
+            const originalPoster = img.getAttribute('data-src');
+            
+            if (originalPoster) {
+                getCachedImage(originalPoster).then(cachedImgUrl => {
+                    if (cachedImgUrl) {
+                        img.src = cachedImgUrl;
+                        img.classList.add('zoom-anim');
+                    } else {
+                        img.src = originalPoster;
+                        img.classList.add('zoom-anim');
+                        fetch(originalPoster)
+                            .then(res => res.blob())
+                            .then(blob => saveImageToCache(originalPoster, blob))
+                            .catch(() => {});
+                    }
+                });
+            }
+            observer.unobserve(img);
+        }
+    });
+}, {
+    root: null,
+    rootMargin: '100px', 
+    threshold: 0.01
+});
+
+function loadMoreMovies() {
+    if (isSearching) return;
+
+    let filtered = allMoviesData;
+    if (currentCategory !== 'all') {
+        filtered = allMoviesData.filter(m => (m.category || 'General') === currentCategory);
+    }
+
+    if (displayedCount >= filtered.length) return;
+
+    const nextBatch = filtered.slice(displayedCount, displayedCount + batchSize);
+    
+    nextBatch.forEach((movie) => {
+        const card = document.createElement('div');
+        card.className = 'movieCard';
+        
+        card.setAttribute('data-search', (movie.title + " " + (movie.cast || "")).toLowerCase());
+        card.setAttribute('data-category', movie.category || 'General');
+        
+        // শুরুতে src সম্পূর্ণ খালি রাখা হলো যাতে কার্ডটি ফাঁকা দেখায়
+        card.innerHTML = `
+            <div class="rating">★ ${movie.rating || '8.0'}</div>
+            <img id="img_${movie.video}" data-src="${movie.poster}" src="" onclick="openPlayer('${movie.video}')">
+            <div class="title"><span>${movie.title}</span></div>
+        `;
+        grid.appendChild(card);
+
+        const imgElement = document.getElementById(`img_${movie.video}`);
+        if (imgElement) {
+            imageObserver.observe(imgElement);
+        }
+    });
+
+    displayedCount += nextBatch.length;
+}
+
+window.addEventListener('scroll', () => {
+    const scrollThreshold = window.innerHeight * 10; 
+    if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - scrollThreshold)) {
+        loadMoreMovies();
+    }
+});
+
+function loadCategories(movies) {
+    const categories = [...new Set(movies.map(m => m.category || 'General'))]; 
+    const catContainer = document.getElementById('categoryList');
+    catContainer.innerHTML = "";
+    
+    categories.forEach(cat => {
+        catContainer.innerHTML += `<a href="#" onclick="filterMovies('${cat}')">${cat}</a>`;
+    });
+}
+
+function filterMovies(category) {
+    currentCategory = category;
+    isSearching = false;
+    document.getElementById('searchInput').value = '';
+    grid.innerHTML = "";
+    displayedCount = 0;
+    loadMoreMovies();
+    closeSidebar();
+}
+
+function searchMovies() {
+    let input = document.getElementById('searchInput').value.toLowerCase();
+    if (input.trim() === "") {
+        isSearching = false;
+        grid.innerHTML = "";
+        displayedCount = 0;
+        loadMoreMovies();
+        return;
+    }
+
+    isSearching = true;
+    grid.innerHTML = "";
+    
+    let matchedMovies = allMoviesData.filter(movie => {
+        let searchData = (movie.title + " " + (movie.cast || "")).toLowerCase();
+        return searchData.includes(input);
+    });
+
+    matchedMovies.forEach((movie) => {
+        const card = document.createElement('div');
+        card.className = 'movieCard';
+        card.innerHTML = `
+            <div class="rating">★ ${movie.rating || '8.0'}</div>
+            <img id="s_img_${movie.video}" data-src="${movie.poster}" src="" onclick="openPlayer('${movie.video}')">
+            <div class="title"><span>${movie.title}</span></div>
+        `;
+        grid.appendChild(card);
+
+        const imgElement = document.getElementById(`s_img_${movie.video}`);
+        if (imgElement) {
+            imageObserver.observe(imgElement);
+        }
+    });
+}
+
+function openSidebar() {
+    document.getElementById("sidebar").style.width = "250px";
+}
+
+function closeSidebar() {
+    document.getElementById("sidebar").style.width = "0";
+}
+
+/* ==================================================
+   CORE PLAYER LAUNCH FUNCTION (ORIGINAL)
+   ================================================== */
+function openPlayer(videoId){
+ popup.style.display = "block";
+ document.body.style.overflow = "hidden";
+ 
+ videoSource.src = "https://debasis.installapkapps.workers.dev/?id=" + videoId;
+ player.source = {
+     type: 'video',
+     sources: [{ src: videoSource.src, type: 'video/mp4' }]
+ };
+ 
+ videoPlayer.oncanplay = () => {
+     loader.style.display = "none";
+     player.play().catch(err => {
+         console.log("Playback error:", err);
+         loader.style.display = "none";
+         showThemePlayerError();
+     });
+     setTimeout(fixPlyrTimeline, 500);
+ };
+
+ setTimeout(() => {
+     if (loader.style.display === "flex") {
+         loader.style.display = "none";
+     }
+ }, 3000);
+
+ screen.orientation?.lock("landscape").catch(()=>{});
+}
+
+/* ==================================================
+   INTERCEPT & SECURE PLAYER WITH LINK CHECKER
+   ================================================== */
+window.savedOriginalOpenPlayer = openPlayer;
+window.openPlayer = function(videoId) {
+    processActualPlayer(videoId);
+};
+
+function processActualPlayer(videoId) {
+    const themeLoader = document.getElementById("loader");
+    if (themeLoader) themeLoader.style.display = "flex";
+
+    const targetUrl = "https://debasis.installapkapps.workers.dev/?id=" + videoId;
+
+    const driveIdMatch = targetUrl.match(/id=([a-zA-Z0-9-_]+)/) || targetUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+
+    if (driveIdMatch) {
+        const driveId = driveIdMatch[1];
+        const checkUrl = "https://lh3.googleusercontent.com/u/0/d/" + driveId + "=w200-h200-p";
+        const img = new Image();
+        let isLinkValid = false;
+
+        img.onload = function() { isLinkValid = true; };
+        img.onerror = function() { isLinkValid = false; };
+        img.src = checkUrl;
+
+        setTimeout(function() {
+            if (isLinkValid) {
+                if (window.savedOriginalOpenPlayer) window.savedOriginalOpenPlayer(videoId);
+            } else {
+                if (themeLoader) themeLoader.style.display = "none";
+                showThemePlayerError(); 
+            }
+        }, 3000);
+    } else {
+        if (themeLoader) themeLoader.style.display = "none";
+        if (window.savedOriginalOpenPlayer) window.savedOriginalOpenPlayer(videoId);
+    }
+}
+
+/* ==================================================
+   ERROR POPUP CONTROL FUNCTIONS
+   ================================================== */
+window.showThemePlayerError = function() {
+    const errPopup = document.getElementById("errorPopup");
+    if (errPopup) errPopup.style.display = "flex";
+}
+
+window.closeThemeErrorPopup = function() {
+    const errPopup = document.getElementById("errorPopup");
+    if (errPopup) errPopup.style.display = "none";
+}
+
+window.handleThemeCommentClick = function() {
+    const commentSection = document.getElementById("comments") || document.getElementById("comment-holder") || document.querySelector('.comments');
+    if (commentSection) {
+        commentSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        window.location.href = 'comment.html';
+    }
+    window.closeThemeErrorPopup();
+}
+
+function closePlayer(){
+  if(document.fullscreenElement) document.exitFullscreen();
+  player.pause();
+  videoSource.src = "";
+  popup.style.display = "none";
+  loader.style.display = "none";
+  document.body.style.overflow = "";
+  screen.orientation?.unlock();
+}
+
+function toggleFull(){
+  if(!document.fullscreenElement){
+    container.requestFullscreen?.().then(()=>{
+      screen.orientation?.lock("landscape").catch(()=>{});
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+player.on('enterfullscreen', () => setTimeout(fixPlyrTimeline, 500));
+player.on('exitfullscreen', () => setTimeout(fixPlyrTimeline, 500));
+window.addEventListener('orientationchange', () => setTimeout(fixPlyrTimeline, 500));
+
+function handleVideoError() {
+    console.warn("Video encoding/playback error detected. Trying to recover...");
+    const currentTime = player.currentTime;
+    
+    setTimeout(() => {
+        player.currentTime = currentTime + 1;
+        player.play().catch(() => {});
+    }, 1000);
+}
+
+function handleVideoStalled() {
+    if (videoPlayer.paused === false && player.duration > 0) {
+        const currentTime = player.currentTime;
+        setTimeout(() => {
+            if (videoPlayer.paused) {
+                player.currentTime = currentTime + 0.5;
+                player.play().catch(() => {});
+            }
+        }, 2000);
+    }
+}
+
+function startBackgroundSync() {
+    setInterval(async () => {
+        try {
+            const res = await fetch("https://raw.githubusercontent.com/appcreator05/post/main/8468988.json" + "?t=" + new Date().getTime());
+            const freshData = await res.json();
+            
+            if (freshData && freshData.length > 0) {
+                if (freshData.length !== allMoviesData.length) {
+                    allMoviesData = processAndShuffleMovies(freshData);
+                    saveMoviesToCache(freshData);
+                    
+                    if (!isSearching && currentCategory === 'all') {
+                        grid.innerHTML = "";
+                        displayedCount = 0;
+                        loadMoreMovies();
+                    } else {
+                        loadCategories(allMoviesData);
+                    }
+                }
+            }
+        } catch (e) {}
+    }, 30000);
+}
+
+loadMovies();
+startBackgroundSync();
+</script>
+<script>
+if ('wakeLock' in navigator) {
+    let lock=null;
+    async function requestWakeLock(){
+        try{
+            lock=await navigator.wakeLock.request("screen");
+            console.log("Wake Lock active");
+        }catch(e){
+            console.error("Wake Lock failed:",e);
+        }
+    }
+    requestWakeLock();
+    document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&requestWakeLock()});
+    setInterval(requestWakeLock,15e3);
+}
+</script>
+
+
+<!-- No Internet Overlay Popup -->
+<div id="offlineOverlay">
+    <div class="offlineCard">
+        <button class="offlineCloseBtn" onclick="closeOfflinePopup()"></button>
+        <div style="font-size: 40px;">📡❌</div>
+        <h3>No Internet Connection</h3>
+        <p>The internet connection on your mobile is turned off.</p>
+		<p>आपके मोबाइल का इंटरनेट कनेक्शन बंद है।</p>
+		<p>আপনার মোবাইলের ইন্টারনেট সংযোগ বন্ধ রয়েছে।</p>
+    </div>
+</div>
+</body>
+</html>
