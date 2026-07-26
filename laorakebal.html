@@ -553,6 +553,268 @@ function startBackgroundSync() {
 loadMovies();
 startBackgroundSync();
 </script>
+<a id="hidden-trigger-link" href="index.html" style="display: none;">Open Section</a>
+
+    <div class="unlock-system">
+    <div id="custom-success">Unlocked Successfully!</div>
+    <div id="unlock-overlay" class="overlay-container" style="display: none;">
+        <div class="unlock-box">
+           
+            <!-- ফ্রি ওয়ান মিনিট সেকশন -->
+            <div id="free-section">
+                <button class="btn-free" onclick="claimFreeMinute()">5 Minute trial Access</button>
+            </div>
+
+            <div id="or-divider" style="font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">OR</div>
+
+            <h3>Enter Login Mobile Number</h3>
+            <input autocomplete="off" type="text" id="checkPhone" placeholder="Enter 10-digit number" maxlength="10" oninput="autoUnlock(this.value)">
+            <div id="loading-spinner" class="spinner"></div>
+            <div id="msg-box"></div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, query, orderByChild, equalTo, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCyDd6rCV7WaQe8sMF0Xmob3dpm6z6wEEQ",
+        authDomain: "myapps-4a8eb.firebaseapp.com",
+        databaseURL: "https://myapps-4a8eb-default-rtdb.firebaseio.com",
+        projectId: "myapps-4a8eb",
+        storageBucket: "myapps-4a8eb.appspot.com",
+        messagingSenderId: "342267842050",
+        appId: "1:342267842050:web:4749870bb18b05ed94611b"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase();
+    const overlay = document.getElementById('unlock-overlay');
+    const now = Date.now();
+    let expiryTimer = null;
+
+    // ক্রোম প্যাকেজ (`com.android.chrome`) সহ ইনটেন্ট ফরম্যাট ফাংশন
+    window.openInChrome = (url) => {
+        if (/android/i.test(navigator.userAgent)) {
+            const cleanUrl = url.replace(/^https?:\/\//, '');
+            window.location.href = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;end;`;
+        } else {
+            window.open(url, '_blank');
+        }
+    };
+
+    async function autoCleanExpired() {
+        const subsRef = ref(db, 'subscriptions');
+        const snapshot = await get(subsRef);
+        if (snapshot.exists()) {
+            snapshot.forEach((child) => {
+                if (child.val().expireAt && now > child.val().expireAt) {
+                    remove(ref(db, "subscriptions/" + child.key));
+                }
+            });
+        }
+    }
+
+    autoCleanExpired();
+
+    function triggerAnchorLink() {
+        if (localStorage.getItem('go_trils_fired') !== 'true') {
+            localStorage.setItem('go_trils_fired', 'true');
+            const targetLink = document.getElementById('hidden-trigger-link');
+            if (targetLink) {
+                targetLink.click();
+            }
+        }
+        
+        localStorage.setItem('vdosky_free_expired', 'true');
+        localStorage.removeItem('vdosky_free_claimed_at');
+        localStorage.removeItem('activePhone');
+        
+        setTimeout(() => {
+            location.reload();
+        }, 300);
+    }
+
+    function monitorUserSession() {
+        const activePhone = localStorage.getItem('activePhone');
+
+        if (activePhone) {
+            const q = query(ref(db, 'subscriptions'), orderByChild('device_id'), equalTo("dev_" + activePhone));
+            
+            onValue(q, (snapshot) => {
+                let isValidSession = false;
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const sub = child.val();
+                        if (sub.used === true && sub.expireAt && sub.expireAt > Date.now()) {
+                            isValidSession = true;
+                            
+                            if (expiryTimer) clearTimeout(expiryTimer);
+                            const timeLeft = sub.expireAt - Date.now();
+                            expiryTimer = setTimeout(() => {
+                                triggerAnchorLink();
+                            }, timeLeft);
+                        }
+                    });
+                }
+
+                if (isValidSession) {
+                    overlay.style.display = 'none';
+                } else {
+                    if (localStorage.getItem('sub_processed') !== 'true') {
+                        localStorage.setItem('sub_processed', 'true');
+                        if (expiryTimer) clearTimeout(expiryTimer);
+                        triggerAnchorLink();
+                    } else {
+                        overlay.style.display = 'flex';
+                        const freeSection = document.getElementById('free-section');
+                        if (freeSection) freeSection.style.display = 'none';
+                        const orDivider = document.getElementById('or-divider');
+                        if (orDivider) orDivider.style.display = 'none';
+                    }
+                }
+            }, (error) => {
+                console.error("Real-time tracking error:", error);
+            });
+        } else {
+            checkFreeClaimStatus();
+        }
+    }
+
+    function checkFreeClaimStatus() {
+        const freeExpired = localStorage.getItem('vdosky_free_expired');
+        const claimedTime = localStorage.getItem('vdosky_free_claimed_at');
+        const freeSection = document.getElementById('free-section');
+        const orDivider = document.getElementById('or-divider');
+
+        if (freeExpired === 'true') {
+            if (freeSection) freeSection.style.display = 'none';
+            if (orDivider) orDivider.style.display = 'none';
+            overlay.style.display = 'flex';
+            return;
+        }
+
+        if (claimedTime) {
+            if (freeSection) freeSection.style.display = 'none';
+            if (orDivider) orDivider.style.display = 'none';
+            
+            const tenMinutes = 5 * 60 * 1000;
+            const timeLeft = (parseInt(claimedTime) + tenMinutes) - Date.now();
+
+            if (timeLeft > 0) {
+                overlay.style.display = 'none';
+                setTimeout(() => {
+                    triggerAnchorLink();
+                }, timeLeft);
+            } else {
+                triggerAnchorLink();
+            }
+        } else {
+            overlay.style.display = 'flex';
+        }
+    }
+
+    monitorUserSession();
+
+    window.claimFreeMinute = () => {
+        const freeSection = document.getElementById('free-section');
+        const orDivider = document.getElementById('or-divider');
+        const claimedTime = localStorage.getItem('vdosky_free_claimed_at');
+        const freeExpired = localStorage.getItem('vdosky_free_expired');
+
+        if (freeExpired === 'true' || claimedTime) {
+            if (freeSection) freeSection.style.display = 'none';
+            if (orDivider) orDivider.style.display = 'none';
+            alert("You have already claimed the free minute on this device!");
+            return;
+        }
+
+        const currentTime = Date.now();
+        localStorage.setItem('vdosky_free_claimed_at', currentTime);
+
+        if (freeSection) freeSection.style.display = 'none';
+        if (orDivider) orDivider.style.display = 'none';
+
+        overlay.style.display = 'none';
+        const successMsg = document.getElementById('custom-success');
+        successMsg.innerText = "5 Minute trial Access Activated!";
+        successMsg.style.display = 'block';
+        setTimeout(() => { successMsg.style.display = 'none'; }, 3000);
+
+        setTimeout(() => {
+            triggerAnchorLink();
+        }, 5 * 60 * 1000);
+    };
+
+    window.autoUnlock = async (phone) => {
+        const msgBox = document.getElementById('msg-box');
+        const spinner = document.getElementById('loading-spinner');
+        
+        if (phone.length < 10) { msgBox.innerHTML = ''; spinner.style.display = 'none'; return; }
+
+        spinner.style.display = 'block';
+        msgBox.innerHTML = '';
+        
+        try {
+            const q = query(ref(db, 'subscriptions'), orderByChild('device_id'), equalTo("dev_" + phone));
+            const snapshot = await get(q);
+            spinner.style.display = 'none';
+
+            if (snapshot.exists()) {
+                let foundValid = false;
+                snapshot.forEach((child) => {
+                    const id = child.key;
+                    const sub = child.val();
+
+                    if (sub.expireAt && Date.now() > sub.expireAt) {
+                        remove(ref(db, "subscriptions/" + id));
+                    } else if (sub.used === true) {
+                        msgBox.innerHTML = '<p class="error">This mobile number is already used!</p>';
+                    } else {
+                        foundValid = true;
+                        update(ref(db, 'subscriptions/' + id), { used: true }).then(() => {
+                            localStorage.setItem('activePhone', phone);
+                            localStorage.removeItem('sub_processed');
+                            localStorage.removeItem('go_trils_fired');
+                            overlay.style.display = 'none';
+                            const successMsg = document.getElementById('custom-success');
+                            successMsg.innerText = "Unlocked Successfully!";
+                            successMsg.style.display = 'block';
+                            setTimeout(() => { successMsg.style.display = 'none'; }, 3000);
+                            
+                            monitorUserSession();
+                        });
+                    }
+                });
+                if (!foundValid && !msgBox.innerHTML) msgBox.innerHTML = '<p class="error">Login Number not registered.<br/> Please Pay And register Number</p>';
+            } else {
+                msgBox.innerHTML = '<p class="error">Login Number not registered.<br/> Please Pay And register Number</p>';
+                const container = document.createElement('div');
+                container.style.marginTop = "15px"; container.style.display = "flex";
+                container.style.gap = "10px"; container.style.justifyContent = "center";
+
+                const razorBtn = document.createElement('button');
+                razorBtn.innerText = "Pay with Razorpay";
+                razorBtn.style.cssText = "padding:10px; background:#3399cc; border:none; color:white; border-radius:5px; cursor:pointer; font-weight:bold;";
+                razorBtn.onclick = () => window.openInChrome("https://subs05.blogspot.com/p/register-mobile-number.html");
+
+                const paypalBtn = document.createElement('button');
+                paypalBtn.innerText = "Pay with PayPal";
+                paypalBtn.style.cssText = "padding:10px; background:#ffc439; border:none; color:black; border-radius:5px; cursor:pointer; font-weight:bold;";
+                paypalBtn.onclick = () => window.openInChrome("https://subs05.blogspot.com/p/mobile-number-register-paypal.html");
+
+                container.appendChild(razorBtn); container.appendChild(paypalBtn);
+                msgBox.appendChild(container);
+            }
+        } catch (error) {
+            spinner.style.display = 'none';
+            console.error(error);
+        }
+    };
+</script>
 <script>
 if ('wakeLock' in navigator) {
     let lock=null;
@@ -582,5 +844,35 @@ if ('wakeLock' in navigator) {
 		<p>আপনার মোবাইলের ইন্টারনেট সংযোগ বন্ধ রয়েছে।</p>
     </div>
 </div>
+<script>
+// 1. Right Click bondho
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+// 2. Advanced Security & Alt-Menu Block
+function blockSecurity(e) {
+    // Alt key block (System Menu block korar chesta)
+    if (e.altKey || e.keyCode == 18) {
+        e.preventDefault();
+        return false;
+    }
+
+    // F12, Ctrl+U, Ctrl+Shift+I, Ctrl+S, Ctrl+C block
+    if (e.keyCode == 123 || 
+        (e.ctrlKey && e.keyCode == 85) || 
+        (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || 
+        (e.ctrlKey && e.keyCode == 83) || 
+        (e.ctrlKey && e.keyCode == 67)) {
+        e.preventDefault();
+        return false;
+    }
+}
+
+// Keydown ebong Keyup — duto event-ei block kora hochhe jate menu na ashe
+document.addEventListener('keydown', blockSecurity);
+document.addEventListener('keyup', blockSecurity);
+
+// 3. Text Selection block
+document.onselectstart = function() { return false; };
+</script>
 </body>
 </html>
